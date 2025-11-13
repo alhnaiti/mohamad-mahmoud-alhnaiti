@@ -1,0 +1,18 @@
+# requirments 
+fastapi
+uvicorn[standard]
+streamlit
+requests
+ollama
+pdfplumber
+pdf2image
+pytesseract
+pillow
+chromadb
+numpy
+concurrent-log-handler
+python-multipart
+PyMuPDF
+img2pdf 
+Pillow
+pymongo

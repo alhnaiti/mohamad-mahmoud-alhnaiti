@@ -1,0 +1,31 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environments
+env/
+venv/
+.venv/
+
+# OS files
+.DS_Store
+
+# Data folders
+chroma_db/
+Data/
+
+# Logs
+*.log
+
+# Secrets
+.env
+
+.Python
+
+.DS_Store
+.git/
+*.pdf
+*.jpg
+*.png
+*.mp4
