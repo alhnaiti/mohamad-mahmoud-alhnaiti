@@ -43,8 +43,8 @@ def split_text(docs, chunk_size=1000, overlap=100):
     return chunks
 
 def get_embedding(text, model=os.environ.get("EMBEDDING_MODEL")
-): # the model is secret 
-    ollama_base = os.environ.get("OLLAMA_BASE_URL") #secret
+): 
+    ollama_base = os.environ.get("OLLAMA_BASE_URL") 
     try:
         response = requests.post(
             f"{ollama_base}/v1/embeddings",
@@ -68,7 +68,7 @@ def get_chroma_client():
     ))
 
 def build_vector_db(chunks, model=os.environ.get("EMBEDDING_MODEL")
-): #secret
+): 
     client = get_chroma_client()
     
     
@@ -89,7 +89,7 @@ def build_vector_db(chunks, model=os.environ.get("EMBEDDING_MODEL")
     unique_ids = [str(uuid.uuid4()) for _ in range(len(chunks))]
 
     collection.add(
-        ids=unique_ids,  # Use unique ids 
+        ids=unique_ids,   
         documents=chunks,
         metadatas=[{"source": f"chunk_{i}"} for i in range(len(chunks))],
         embeddings=embeddings
@@ -97,7 +97,7 @@ def build_vector_db(chunks, model=os.environ.get("EMBEDDING_MODEL")
     return collection
 
 def retrieve_similar(query, vector_db, top_k=3,model=os.environ.get("EMBEDDING_MODEL")
-):#secret
+):
     query_vector = get_embedding(query, model=model)
     results = vector_db.query(
         query_embeddings=[query_vector],

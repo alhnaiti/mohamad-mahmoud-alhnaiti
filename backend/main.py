@@ -14,7 +14,7 @@ from pydantic import BaseModel
 import requests
 app = FastAPI(title="RAG Backend")
 
-MONGO_URI = os.environ.get("MONGO_URL")  #secret 
+MONGO_URI = os.environ.get("MONGO_URL")  
 mongo_client = MongoClient(MONGO_URI)
 db = mongo_client["rag_chat"]
 chats_collection = db["chat_history"] 
@@ -61,8 +61,8 @@ def query(q: str, top_k: int = 3):
     context = retrieve_similar(q, collection, top_k=top_k)
 
     import requests
-    ollama_base = os.environ.get("OLLAMA_BASE_URL(\v1)") #secret 
-    model = "qwen2:7b" #secrert 
+    ollama_base = os.environ.get("OLLAMA_BASE_URL(\v1)")  
+    model = "qwen2:7b" 
     prompt = (
         f"You are a bilingual assistant. If the question is in Arabic, answer in Arabic. "
         f"If in English, answer in English.\n\nUse this context to answer accurately:\n{context}\n\nQuestion: {q}"
@@ -129,7 +129,7 @@ def chat_endpoint(request: ChatRequest):
 )
 
 
-    ollama_base = os.environ.get("OLLAMA_BASE_URL") # secret 
+    ollama_base = os.environ.get("OLLAMA_BASE_URL")  
     try:
         response = requests.post(
             f"{ollama_base}/v1/chat/completions",

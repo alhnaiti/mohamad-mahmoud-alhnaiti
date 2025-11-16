@@ -4,7 +4,7 @@ import streamlit as st
 import requests
 import uuid
 
-BACKEND_URL = os.environ.get("BACKEND_URL") #secret
+BACKEND_URL = os.environ.get("BACKEND_URL") 
 st.set_page_config(page_title="RAG Chat", layout="wide")
 
 st.title("")

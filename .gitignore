@@ -3,22 +3,22 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Environments
+
 env/
 venv/
 .venv/
 
-# OS files
+
 .DS_Store
 
-# Data folders
+
 chroma_db/
 Data/
 
-# Logs
+
 *.log
 
-# Secrets
+
 .env
 
 .Python
