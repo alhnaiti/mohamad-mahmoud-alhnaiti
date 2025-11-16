@@ -16,3 +16,4 @@ PyMuPDF
 img2pdf 
 Pillow
 pymongo
+qdrant-client
