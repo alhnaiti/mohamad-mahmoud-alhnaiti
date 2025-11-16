@@ -54,7 +54,8 @@ def get_embedding(text, model=os.environ.get("EMBEDDING_MODEL")
         return response.json()["data"][0]["embedding"]
     except Exception as e:
         print(f"⚠️ Embedding failed for text chunk: {e}")
-        return np.random.rand(512).tolist() 
+        raise RuntimeError("Embedding generation failed.")
+
 
 
 def get_chroma_client():
