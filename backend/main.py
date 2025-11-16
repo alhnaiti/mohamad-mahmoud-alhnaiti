@@ -52,17 +52,14 @@ def build_db(filename: str):
 @app.get("/query/")
 def query(q: str, top_k: int = 3):
     try:
-        from rag_utils import get_chroma_client
-        client = get_chroma_client()
-        collection = client.get_collection("pdf_docs")
+        from rag_utils import retrieve_similar
+        context = retrieve_similar(q, top_k=top_k)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Chroma collection error: {e}")
+        raise HTTPException(status_code=500, detail=f"Qdrant query error: {e}")
 
-    context = retrieve_similar(q, collection, top_k=top_k)
+    ollama_base = os.environ.get("OLLAMA_BASE_URL")
+    model = "qwen2:7b"
 
-    import requests
-    ollama_base = os.environ.get("OLLAMA_BASE_URL(\v1)")  
-    model = "qwen2:7b" 
     prompt = (
         f"You are a bilingual assistant. If the question is in Arabic, answer in Arabic. "
         f"If in English, answer in English.\n\nUse this context to answer accurately:\n{context}\n\nQuestion: {q}"
@@ -70,22 +67,17 @@ def query(q: str, top_k: int = 3):
 
     try:
         response = requests.post(
-            f"{ollama_base}/chat/completions",
-            json={
-                "model": "qwen2:7b",
-                "messages": [
-                {"role": "user", "content": prompt} ]
-            },
+            f"{ollama_base}/v1/chat/completions",
+            json={"model": model, "messages": [{"role": "user", "content": prompt}]},
             timeout=120
-            
         )
         response.raise_for_status()
-        data = response.json()
-        answer = data["choices"][0]["message"]["content"]
+        answer = response.json()["choices"][0]["message"]["content"]
     except Exception as e:
-        answer = f" Chat request failed: {e}"
+        answer = f"Chat request failed: {e}"
 
     return {"answer": answer, "context": context}
+
 
 
 class ChatRequest(BaseModel):
@@ -95,14 +87,9 @@ class ChatRequest(BaseModel):
 
 @app.post("/chat/")
 def chat_endpoint(request: ChatRequest):
-    from rag_utils import get_chroma_client, retrieve_similar
+    from rag_utils import retrieve_similar
+    context = retrieve_similar(request.query, top_k=3)
 
-    try:
-        client = get_chroma_client()
-        collection = client.get_collection("pdf_docs")
-        context = retrieve_similar(request.query, collection, top_k=3)
-    except Exception as e:
-        context = f"(no context available: {e})"
 
     prompt = (
     "You are a highly knowledgeable bilingual AI assistant integrated into a RAG (Retrieval-Augmented Generation) system.\n"
