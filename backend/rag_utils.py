@@ -67,42 +67,34 @@ def get_chroma_client():
         is_persistent=True
     ))
 
-def build_vector_db(chunks, model=os.environ.get("EMBEDDING_MODEL")
-): 
-    client = get_chroma_client()
-    
-    
-    try:
-        client.delete_collection("pdf_docs")
-    except:
-        pass  
-    
-    collection = client.create_collection(name="pdf_docs")
+from qdrant_wrapper import QdrantWrapper
+from concurrent.futures import ThreadPoolExecutor
 
+def build_vector_db(chunks, model=os.environ.get("EMBEDDING_MODEL")):
+    
+    qdrant = QdrantWrapper(dim=768)
+    
+    
+    qdrant.create_collection()
+
+    
     def embed(chunk):
         return get_embedding(chunk, model=model)
 
     with ThreadPoolExecutor(max_workers=3) as executor:
         embeddings = list(executor.map(embed, chunks))
 
-    import uuid
-    unique_ids = [str(uuid.uuid4()) for _ in range(len(chunks))]
+    
+    qdrant.insert_chunks(chunks, embeddings)
 
-    collection.add(
-        ids=unique_ids,   
-        documents=chunks,
-        metadatas=[{"source": f"chunk_{i}"} for i in range(len(chunks))],
-        embeddings=embeddings
-    )
-    return collection
+    return True
+from qdrant_wrapper import QdrantWrapper
 
-def retrieve_similar(query, vector_db, top_k=3,model=os.environ.get("EMBEDDING_MODEL")
-):
-    query_vector = get_embedding(query, model=model)
-    results = vector_db.query(
-        query_embeddings=[query_vector],
-        n_results=top_k,
-        include=["documents"]
-    )
-    top_chunks = results['documents'][0]
+def retrieve_similar(query, top_k=3, model=os.environ.get("EMBEDDING_MODEL")):
+    qdrant = QdrantWrapper(dim=768)
+
+    query_embedding = get_embedding(query, model=model)
+
+    top_chunks = qdrant.search(query_embedding, top_k)
+
     return "\n\n".join(top_chunks)
